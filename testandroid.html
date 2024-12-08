@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài kiểm tra Android</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .quiz-container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .question {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+      }
+      .question h3 {
+        margin-top: 0;
+        color: #333;
+      }
+      .options {
+        margin-left: 20px;
+      }
+      .option {
+        margin: 10px 0;
+      }
+      .option label {
+        margin-left: 8px;
+        cursor: pointer;
+      }
+      .submit-btn {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 20px;
+      }
+      .submit-btn:hover {
+        background-color: #45a049;
+      }
+      .result {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 4px;
+        display: none;
+      }
+      .correct {
+        background-color: #dff0d8;
+        border: 1px solid #d6e9c6;
+        color: #3c763d;
+      }
+      .incorrect {
+        background-color: #f2dede;
+        border: 1px solid #ebccd1;
+        color: #a94442;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="quiz-container">
+      <h1>Bài kiểm tra Android</h1>
+      <form id="quiz-form">
+        <div id="questions-container"></div>
+        <button type="submit" class="submit-btn">Nộp bài</button>
+      </form>
+      <div id="results" class="result"></div>
+    </div>
+
+    <script>
+      let quizData = null;
+
+      async function loadQuizData() {
+        // Trong thực tế, đây sẽ là một API call
+        // Tạm thời sử dụng dữ liệu mẫu
+        quizData = {
+          questions: [
+            {
+              id: 1,
+              question:
+                "Những thành phần nào sau đây thuộc thư viện native của Android?",
+              options: ["Webkit", "OpenGL", "SQLite", "Dalvik", "OpenUI"],
+              correctAnswers: [2, 3, 4],
+              type: "multiple",
+            },
+            {
+              id: 2,
+              question: "Lớp RadioGroup được kế thừa trực tiếp từ lớp nào?",
+              options: [
+                "LinearLayout",
+                "RelativeLayout",
+                "android.widget.view",
+                "ConstrainLayout",
+                "ViewGroup",
+              ],
+              correctAnswers: [0],
+              type: "single",
+            },
+            {
+              id: 3,
+              question:
+                "Widget view nào có thể được sử dụng để tạo đối tượng có thể click với nội dung hình ảnh?",
+              options: [
+                "Button",
+                "ImageButton",
+                "ImageView",
+                "Image",
+                "TextView",
+              ],
+              correctAnswers: [1],
+              type: "single",
+            },
+            {
+              id: 4,
+              question:
+                "Activity chứa đoạn code sau trong onCreate(). Điều gì sẽ xảy ra khi code này được thực thi, nếu thuộc tính intent là null? val message = intent.extras?.getString('message').toString()",
+              options: [
+                "Ứng dụng sẽ không crash vì thuộc tính extras được truy cập an toàn bằng ?.",
+                "Ứng dụng sẽ crash vì nó cố gắng truy cập một đối tượng null.",
+                "Ứng dụng sẽ không crash vì thuộc tính extras được truy cập không an toàn bằng ?.",
+                "Ứng dụng sẽ crash vì nó cố gắng truy cập thuộc tính extras trên một đối tượng null.",
+              ],
+              correctAnswers: [3],
+              type: "single",
+            },
+            {
+              id: 5,
+              question: "Intent action nào được dùng để mở trang web?",
+              options: [
+                "Intent.ACTION_ACCESS_INTERNET",
+                "Intent.ACTION_WEB_VIEW",
+                "Intent.ACTION_MAIN",
+                "Intent.ACTION_GET_CONTENT",
+                "Intent.ACTION_VIEW",
+              ],
+              correctAnswers: [4],
+              type: "single",
+            },
+            {
+              id: 6,
+              question: "Ngôn ngữ nào được dùng để lập trình Android gốc?",
+              options: ["Java", "HTML, CSS, Javascript", "Kotlin", "C/C++"],
+              correctAnswers: [0, 2, 3],
+              type: "multiple",
+            },
+            {
+              id: 7,
+              question:
+                "Điểm linh hoạt nào của thiết bị Android so với thiết bị iOS?",
+              options: [
+                "Dữ liệu người dùng được bảo mật hơn",
+                "Có thể kết nối với nhiều thiết bị ngoại vi như chuột hoặc bàn phím",
+                "Sao lưu và khôi phục dữ liệu dễ dàng với dịch vụ đám mây",
+                "Cho phép cài đặt ứng dụng từ nguồn thứ ba (không phải từ Google Play Store)",
+              ],
+              correctAnswers: [3],
+              type: "single",
+            },
+            {
+              id: 8,
+              question:
+                "Nơi cấu hình home activity - activity đầu tiên sẽ được chạy trong ứng dụng của bạn?",
+              options: [
+                "Trong AndroidManifest.xml",
+                "Trong file gradle cấp project",
+                "Trong MainActivity.kt",
+                "Trong file gradle cấp module",
+              ],
+              correctAnswers: [0],
+              type: "single",
+            },
+            {
+              id: 9,
+              question: "Lambda trong Kotlin là gì?",
+              options: [
+                "Lambda là một biểu thức mô tả một hàm. Thay vì khai báo một hàm có tên, bạn khai báo một hàm không có tên",
+                "Lambda là một kiểu Class trong Kotlin",
+                "Lambda là một Interface trong Kotlin",
+                "Lambda là một kiểu dữ liệu trong Kotlin",
+              ],
+              correctAnswers: [0],
+              type: "single",
+            },
+            {
+              id: 10,
+              question:
+                "Cả Toast và Logcat có thể được dùng để debug chương trình, biểu thức nào dưới đây là sai?",
+              options: [
+                "Toast hiển thị thông tin trên thiết bị trong khi Logcat hiển thị thông tin trên máy chủ",
+                "Logcat chỉ hiển thị thông tin mà nhà phát triển ghi ra",
+                "Logcat không thể hiển thị trên máy tính khi không có kết nối giữa máy tính và thiết bị Android",
+                "Toast có thể được sử dụng để hiển thị một số hướng dẫn cho người dùng",
+              ],
+              correctAnswers: [1],
+              type: "single",
+            },
+            {
+              id: 11,
+              question:
+                "Để xử lý sự kiện khi người dùng nhấn và giữ nút, ta sử dụng phương thức nào?",
+              options: [
+                "setLongClickListener",
+                "setOnLongClickListener",
+                "setOnClickListener",
+                "setOnLongTouchListener",
+              ],
+              correctAnswers: [1],
+              type: "single",
+            },
+            {
+              id: 12,
+              question:
+                "Nếu chúng ta có một số nút trong một Activity, và tất cả các nút đều set sự kiện onClickListener cho Activity bằng cách gọi setOnClickListener(this), thì trong hàm callback onClick của Activity, làm sao để biết nút nào được click?",
+              options: [
+                "Dựa vào thứ tự các nút trong file layout xml",
+                "Dựa vào tên của mỗi nút",
+                "Dựa vào vị trí của mỗi nút",
+                "Dựa vào id của mỗi nút",
+              ],
+              correctAnswers: [3],
+              type: "single",
+            },
+            {
+              id: 13,
+              question:
+                "Phương thức lifecycle nào của activity sẽ được gọi nếu một dialog xuất hiện trên màn hình, che một phần activity?",
+              options: [
+                "onDestroy() vì activity không cần tồn tại khi không có focus",
+                "onStop() vì activity không cần phản hồi input từ người dùng khi dialog đang hiển thị",
+                "onResume() vì activity cần phản hồi input từ người dùng để hiển thị dialog",
+                "onPause() vì activity vẫn được hiển thị, nhưng không còn focus",
+              ],
+              correctAnswers: [3],
+              type: "single",
+            },
+            {
+              id: 14,
+              question:
+                "Đúng hay Sai: onCreateView() chỉ được gọi một lần trong toàn bộ vòng đời của fragment?",
+              options: ["Đúng", "Sai"],
+              correctAnswers: [1],
+              type: "single",
+            },
+            {
+              id: 15,
+              question:
+                "Những cách nào có thể sử dụng để phát triển ứng dụng Android?",
+              options: [
+                "Native approach: Java/Kotlin",
+                "Web-based approach",
+                "Universal Windows Platform (UWP) approach",
+                "Object C",
+                "Flutter",
+              ],
+              correctAnswers: [0, 1, 4],
+              type: "multiple",
+            },
+            {
+              id: 16,
+              question:
+                "Khi nào Activity hiện tại được reset, tức là callback onCreate được gọi lại?",
+              options: [
+                "Người dùng xoay điện thoại",
+                "Người dùng thay đổi ngôn ngữ của điện thoại",
+                "Người dùng nhấn nút home và mở ứng dụng khác",
+                "Điện thoại sắp hết pin",
+              ],
+              correctAnswers: [0, 1, 2],
+              type: "multiple",
+            },
+            {
+              id: 17,
+              question:
+                "Điều nào sau đây không phải là thách thức trong phát triển ứng dụng Android?",
+              options: [
+                "Nhà phát triển có thể phải sử dụng các công cụ phát triển khác nhau trên các hệ điều hành khác nhau",
+                "Ứng dụng phải có khả năng tương thích với nhiều phiên bản Android khác nhau",
+                "Ứng dụng phải được thiết kế cho nhiều độ phân giải",
+                "Mã nguồn và dữ liệu người dùng phải được bảo mật",
+              ],
+              correctAnswers: [0],
+              type: "single",
+            },
+            {
+              id: 18,
+              question:
+                "Trong vòng đời của fragment, những tác vụ nào nên được thực hiện trong onViewCreated()?",
+              options: [
+                "Inflate layout",
+                "Binding đối tượng view với các thuộc tính trong fragment",
+                "Cấu hình menu tùy chọn",
+                "Thiết lập thuộc tính cho các view riêng lẻ, như adapter của recycler view",
+              ],
+              correctAnswers: [1, 3],
+              type: "multiple",
+            },
+            {
+              id: 19,
+              question:
+                "Để làm cho EditText hiển thị ký tự mật khẩu (ví dụ: hiển thị * thay vì ký tự thực), bạn phải đặt giá trị của thuộc tính inputType là gì?",
+              answer: "TYPE_CLASS_TEXT | TYPE_TEXT_VARIATION_PASSWORD",
+              type: "single",
+            },
+            {
+              id: 20,
+              question:
+                "Giả sử chúng ta viết một ứng dụng khảo sát sở thích của mọi người (có 5 sở thích để khảo sát), một người có thể có nhiều sở thích. Control input nào phù hợp cho mục đích này?",
+              options: [
+                "RadioButton",
+                "Recycler View",
+                "DropDownList",
+                "ListView",
+                "Checkbox",
+              ],
+              correctAnswers: [4],
+              type: "single",
+            },
+            {
+              id: 21,
+              question:
+                "Đâu là lợi thế của môi trường phát triển Android so với môi trường phát triển iOS?",
+              options: [
+                "Có thể phát triển trên nhiều hệ điều hành (Windows, Mac, Linux)",
+                "Tốc độ biên dịch nhanh hơn",
+                "Công cụ debug tốt hơn",
+                "Tài liệu phong phú hơn",
+              ],
+              correctAnswers: [0],
+              type: "single",
+            },
+            {
+              id: 22,
+              question:
+                "Điều nào sau đây là lợi ích của việc sử dụng fragments?",
+              options: [
+                "Điều hướng giữa các fragment cho phép tạo các mẫu giao diện người dùng phức tạp hơn, như thanh tab",
+                "Sử dụng nhiều fragment trong một activity cho phép bố cục thích ứng trên nhiều kích thước màn hình",
+                "Các fragment có thể được tái sử dụng trên nhiều activity",
+                "Fragment nhẹ hơn Activity nên chúng ta nên sử dụng Fragment thay vì Activity",
+              ],
+              correctAnswers: [0, 1, 2],
+              type: "multiple",
+            },
+            {
+              id: 23,
+              question:
+                "Cho đoạn code sau: val intent = Intent([ ], Uri.parse('123456789')); intent.putExtra('sms_body', 'hello'); startActivity(intent); Điều gì có thể điền vào [ ]?",
+              options: [
+                "Intent.ACTION_SEND_SMS",
+                "Intent.ACTION_SEND",
+                "Intent.ACTION_SEND_MULTIPLE",
+                "Intent.ACTION_SENDTO",
+              ],
+              correctAnswers: [3],
+              type: "single",
+            },
+            {
+              id: 24,
+              question:
+                "Kiểu trả về mặc định của bất kỳ hàm nào được định nghĩa trong Kotlin là gì?",
+              options: ["Unit", "Double", "void", "Int"],
+              correctAnswers: [0],
+              type: "single",
+            },
+            {
+              id: 25,
+              question:
+                "Những callback nào là callback chính xác của vòng đời activity Android?",
+              options: [
+                "onCreate(), onInit(), onStart(), onPause(), onStop(), onDestroy(), onResume()",
+                "onCreate(), onStart(), onResume(), onPause(), onStop(), onRestart(), onDestroy()",
+                "onCreate(), onStart(), onPause(), onResume(), onFinish(), onStop(), onDestroy()",
+                "onCreate(), onStart(), onActivityStarted(), onResume(), onPause(), onStop(), onActivityDestroy(), onDestroy()",
+              ],
+              correctAnswers: [1],
+              type: "single",
+            },
+            {
+              id: 26,
+              question:
+                "Giá trị nào của thuộc tính scaleType của ImageView cho phép chúng ta giữ nguyên tỷ lệ khung hình (hình ảnh sẽ không bị cắt)?",
+              options: ["centerInside", "fitXY", "centerCrop", "center"],
+              correctAnswers: [0],
+              type: "single",
+            },
+            {
+              id: 27,
+              question:
+                "Những phát biểu nào là đúng về biểu mẫu XML này khi hiển thị trên màn hình?",
+              options: [
+                "TextView A xuất hiện xếp chồng theo chiều dọc phía trên TextView B",
+                "Cạnh bắt đầu của TextView A được căn chỉnh với cạnh bắt đầu của view cha",
+                "Cạnh bắt đầu của TextView B được căn chỉnh với cạnh bắt đầu của view cha",
+                "TextView B được căn giữa theo chiều ngang và chiều dọc trong view cha",
+                "Phần trên của TextView A và TextView B được căn chỉnh với phần trên của view cha",
+                "Chiều rộng của TextView A khớp với chiều rộng của ConstraintLayout cha",
+              ],
+              correctAnswers: [4, 5],
+              type: "multiple",
+            },
+            {
+              id: 28,
+              question:
+                "Những phát biểu nào là đúng về app icon trong Android?",
+              options: [
+                "Chỉ cần cung cấp một ảnh bitmap duy nhất của app icon trong project là đủ để tạo chất lượng cao trên nhiều thiết bị Android",
+                "mdpi, hdpi, xhdpi, xxhdpi, và xxxhdpi là định danh mật độ cho thư mục tài nguyên để chỉ ra rằng đây là tài nguyên được sử dụng trên thiết bị có mật độ màn hình cụ thể",
+                "Adaptive icons được tạo thành từ lớp foreground và background, và một mặt nạ OEM sẽ được áp dụng lên chúng",
+                "Vector drawables chỉ hoạt động cho một mật độ màn hình nhất định và không nên được scale",
+              ],
+              correctAnswers: [1, 2],
+              type: "multiple",
+            },
+            {
+              id: 29,
+              question:
+                "Ghi đè callback onSaveInstanceState không phù hợp trong trường hợp nào?",
+              options: [
+                "Lưu một số trạng thái của Activity và khôi phục sau khi có thay đổi cấu hình thiết bị",
+                "Lưu một số trạng thái của Activity và khôi phục sau khi người dùng xoay màn hình thiết bị",
+                "Lưu một số trạng thái của Activity và khôi phục sau khi người dùng thay đổi ngôn ngữ của thiết bị",
+                "Lưu dữ liệu vào thẻ SD để sử dụng vĩnh viễn sau này",
+              ],
+              correctAnswers: [3],
+              type: "single",
+            },
+            {
+              id: 30,
+              question: "Những điều nào sau đây đúng về abstract classes?",
+              options: [
+                "Chúng có thể được kế thừa bởi các lớp con và các triển khai có thể được cung cấp cho các thành viên abstract của lớp",
+                "Chúng có triển khai cho tất cả các thuộc tính và phương thức của chúng",
+                "Chúng có thể có các thuộc tính hoặc phương thức abstract",
+                "Chúng có thể được khởi tạo",
+                "Chúng không được triển khai đầy đủ và không thể được khởi tạo",
+                "Chúng cần được đánh dấu với từ khóa open để được kế thừa",
+              ],
+              correctAnswers: [0, 2, 4, 5],
+              type: "multiple",
+            },
+            {
+              id: 31,
+              question:
+                "Nếu activity của bạn có tên là: SampleActivity, tên của lớp binding được tạo tự động bởi Android khi bạn cấu hình ứng dụng của mình là data binding enable là gì?",
+              options: [
+                "sample_activity_binding",
+                "ActivitySampleBinding",
+                "activity_sample_binding",
+                "SampleActivityBinding",
+              ],
+              correctAnswers: [3],
+              type: "single",
+            },
+            {
+              id: 32,
+              question:
+                "Những tác vụ nào sau đây có thể được thực hiện trong onCreate()?",
+              options: [
+                "Cấu hình views, như thiết lập layout manager của recycler view",
+                "Xác định các item sẽ được hiển thị trong menu tùy chọn",
+                "Thiết lập onClickListener cho các item trong menu tùy chọn",
+                "Lấy extras từ intent đã khởi chạy activity",
+              ],
+              correctAnswers: [0, 1, 2, 3],
+              type: "multiple",
+            },
+            {
+              id: 33,
+              question:
+                "Giả sử chúng ta có một hình ảnh có tên là 'mobile.png' trong thư mục res/drawable, và chúng ta có một ImageView trong layout activity, phương thức nào có thể được sử dụng để đặt nguồn hình ảnh cho ImageView là hình ảnh mobile.png?",
+              options: [
+                "setImageResource(R.id.mobile)",
+                "setImageResource(R.drawable.mobile)",
+                "setImageDrawable(R.drawable.mobile)",
+                "setImageResource(R.drawable.mobile.png)",
+              ],
+              correctAnswers: [1],
+              type: "single",
+            },
+            {
+              id: 34,
+              question: "Làm thế nào để tắt/kết thúc một activity?",
+              options: [
+                "destroy()",
+                "finish()",
+                "dispose()",
+                "finishActivity()",
+              ],
+              correctAnswers: [1],
+              type: "single",
+            },
+            {
+              id: 35,
+              question: "Điều nào sau đây là sai về implicit intent?",
+              options: [
+                "Để gọi implicit, bạn phải biết tên lớp của activity đích",
+                "Android runtime sẽ mở trình chọn ứng dụng nếu có nhiều hơn một ứng viên cho implicit intent",
+                "Android runtime nhận các yêu cầu và cố gắng tìm ứng dụng phù hợp",
+                "Android runtime giữ danh sách ứng dụng đăng ký để chạy implicit intent",
+              ],
+              correctAnswers: [0],
+              type: "single",
+            },
+            {
+              id: 36,
+              question:
+                "Câu lệnh 'when' trong Kotlin tương tự với câu lệnh nào trong các ngôn ngữ lập trình khác?",
+              options: ["continue", "break", "switch", "if"],
+              correctAnswers: [2],
+              type: "single",
+            },
+            {
+              id: 37,
+              question:
+                "Cho đoạn code sau, chọn đáp án đúng: \nval address = URL.parse('https://soict.hust.edu.vn')\nval intent:Intent = Intent(Intent.ACTION_VIEW, address)\nstartActivity(intent)",
+              options: [
+                "Code sẽ gây ra lỗi biên dịch vì Intent.ACTION_VIEW không tồn tại",
+                "Code sẽ gây ra lỗi runtime vì URL.parse() không đúng cú pháp",
+                "Code sẽ chạy và mở trình duyệt web với URL đã cho",
+                "Code sẽ gây ra lỗi runtime vì thiếu quyền INTERNET",
+              ],
+              correctAnswers: [2],
+              type: "single",
+            },
+            {
+              id: 38,
+              question: "Những điều nào sau đây đúng về Gradle?",
+              options: [
+                "Gradle là hệ thống build tự động được Android Studio sử dụng để build ứng dụng của bạn",
+                "Gradle xử lý việc cài đặt ứng dụng của bạn lên thiết bị",
+                "File build.gradle của ứng dụng bạn được viết bằng XML",
+                "Bạn có thể cấu hình các tùy chọn dành riêng cho Android cho dự án của mình trong file build.gradle của ứng dụng",
+                "Cấu hình gradle cho dự án của bạn không thể thay đổi sau khi bạn tạo dự án ban đầu",
+              ],
+              correctAnswers: [0, 1, 3],
+              type: "multiple",
+            },
+            {
+              id: 39,
+              question: "Những phát biểu nào sau đây về app icons là đúng?",
+              options: [
+                "Chỉ cần cung cấp một ảnh bitmap duy nhất của app icon trong project là đủ để hiển thị chất lượng cao trên nhiều thiết bị Android khác nhau",
+                "mdpi, hdpi, xhdpi, xxhdpi, và xxxhdpi là các qualifier mật độ cho thư mục tài nguyên để chỉ ra rằng đây là tài nguyên sẽ được sử dụng trên thiết bị có mật độ màn hình cụ thể",
+                "Adaptive icons được tạo thành từ lớp foreground và background, và một mặt nạ OEM sẽ được áp dụng lên trên chúng",
+                "Vector drawables chỉ hoạt động với một mật độ màn hình cụ thể và không nên được scale",
+              ],
+              correctAnswers: [1, 2],
+              type: "multiple",
+            },
+            {
+              id: 40,
+              question:
+                "Khi xử lý việc bắt các sự kiện click từ nhiều button trong một Activity bằng cách implement View.OnClickListener, phương thức nào được sử dụng để phân biệt button nào đã được click?",
+              options: [
+                "getSourceId()",
+                "getId()",
+                "getButtonId()",
+                "getViewId()",
+              ],
+              correctAnswers: [1],
+              type: "single",
+            },
+            {
+              id: 41,
+              question:
+                "Trường hợp nào Layout.MATCH_PARENT không thể sử dụng trong ConstraintLayout?",
+              options: [
+                "Với thuộc tính layout_width của view con",
+                "Với thuộc tính layout_height của view con",
+                "Với cả layout_width và layout_height của view con",
+                "Không có trường hợp nào, MATCH_PARENT luôn có thể sử dụng",
+              ],
+              correctAnswers: [2],
+              type: "single",
+            },
+            {
+              id: 42,
+              question:
+                "Phương thức nào được sử dụng để nhận biết hướng màn hình (portrait hay landscape) trong Activity?",
+              options: [
+                "getScreenOrientation()",
+                "getResources().getConfiguration().orientation",
+                "getWindowManager().getDefaultDisplay().getRotation()",
+                "getDisplay().getRotation()",
+              ],
+              correctAnswers: [1],
+              type: "single",
+            },
+            {
+              id: 43,
+              question:
+                "Những phần tử nào bắt buộc phải có trong AndroidManifest.xml?",
+              options: [
+                "<manifest>",
+                "<application>",
+                "<activity>",
+                "<uses-permission>",
+                "<intent-filter>",
+              ],
+              correctAnswers: [0, 1],
+              type: "multiple",
+            },
+            {
+              id: 44,
+              question:
+                "Trong ConstraintLayout, để căn chỉnh một view nằm ở giữa hai view khác theo chiều ngang, ta sử dụng thuộc tính nào?",
+              options: [
+                "android:layout_centerHorizontal='true'",
+                "app:layout_constraintHorizontal_chainStyle='packed'",
+                "app:layout_constraintStart_toEndOf và app:layout_constraintEnd_toStartOf",
+                "android:layout_gravity='center_horizontal'",
+              ],
+              correctAnswers: [2],
+              type: "single",
+            },
+            {
+              id: 45,
+              question:
+                "Khi sử dụng Data Binding trong Android, biểu thức nào sau đây là hợp lệ trong layout XML?",
+              options: [
+                "@{user.name + ' ' + user.lastName}",
+                "@{user->name}",
+                "@{user::name}",
+                "@[user.name]",
+              ],
+              correctAnswers: [0],
+              type: "single",
+            },
+          ],
+        };
+        renderQuiz();
+      }
+
+      function renderQuiz() {
+        const container = document.getElementById("questions-container");
+
+        quizData.questions?.forEach((q, index) => {
+          const questionDiv = document.createElement("div");
+          questionDiv.className = "question";
+
+          const questionTitle = document.createElement("h3");
+          questionTitle.textContent = `Câu ${index + 1}: ${q.question}`;
+
+          const optionsDiv = document.createElement("div");
+          optionsDiv.className = "options";
+
+          q.options?.forEach((option, optIndex) => {
+            const optionDiv = document.createElement("div");
+            optionDiv.className = "option";
+
+            const input = document.createElement("input");
+            input.type = q.type === "multiple" ? "checkbox" : "radio";
+            input.name = `question-${q.id}`;
+            input.value = optIndex;
+            input.id = `q${q.id}-opt${optIndex}`;
+
+            const label = document.createElement("label");
+            label.htmlFor = `q${q.id}-opt${optIndex}`;
+            label.textContent = option;
+
+            optionDiv.appendChild(input);
+            optionDiv.appendChild(label);
+            optionsDiv.appendChild(optionDiv);
+          });
+
+          questionDiv.appendChild(questionTitle);
+          questionDiv.appendChild(optionsDiv);
+          container.appendChild(questionDiv);
+        });
+      }
+
+      function calculateScore(formData) {
+        let score = 0;
+        let total = quizData.questions?.length;
+        let results = [];
+
+        quizData.questions?.forEach((q) => {
+          const answers = formData.getAll(`question-${q.id}`)?.map(Number);
+          const isCorrect = arraysEqual(
+            answers?.sort(),
+            q.correctAnswers?.sort()
+          );
+
+          results.push({
+            questionId: q.id,
+            correct: isCorrect,
+            userAnswers: answers,
+            correctAnswers: q.correctAnswers,
+          });
+
+          if (isCorrect) score++;
+        });
+
+        return {
+          score,
+          total,
+          results,
+        };
+      }
+
+      function arraysEqual(a, b) {
+        if (a?.length !== b?.length) return false;
+        return a.every((val, index) => val === b[index]);
+      }
+
+      function showResults(scoreData) {
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.style.display = "block";
+
+        let html = `<h2>Kết quả: ${scoreData.score}/${scoreData.total}</h2>`;
+
+        scoreData.results?.forEach((result, index) => {
+          const question = quizData.questions.find(
+            (q) => q.id === result.questionId
+          );
+          html += `
+                    <div class="${result.correct ? "correct" : "incorrect"}">
+                        <p><strong>Câu ${index + 1}:</strong> ${
+            result.correct ? "Đúng" : "Sai"
+          }</p>
+                        ${
+                          !result.correct
+                            ? `
+                            <p>Đáp án đúng: ${result.correctAnswers
+                              ?.map((i) => question.options[i])
+                              .join(", ")}</p>
+                            <p>Đáp án của bạn: ${result.userAnswers
+                              ?.map((i) => question.options[i])
+                              .join(", ")}</p>
+                        `
+                            : ""
+                        }
+                    </div>
+                `;
+        });
+
+        resultsDiv.innerHTML = html;
+      }
+
+      document
+        .getElementById("quiz-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          const scoreData = calculateScore(formData);
+          showResults(scoreData);
+          this.querySelector('button[type="submit"]').disabled = true;
+        });
+
+      // Load quiz when page loads
+      loadQuizData();
+    </script>
+  </body>
+</html>
